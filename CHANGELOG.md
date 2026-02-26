@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-02-26
+
+### Added
+- **Comprehensive CI/CD pipeline** with GitHub Actions
+- Multi-platform testing workflow (Ubuntu, macOS, Windows)
+- Automated release workflow with binary builds for multiple platforms
+- Docker build workflow with multi-architecture support (amd64, arm64)
+- Automatic GitHub Container Registry publishing
+- `.cargo/config.toml` for Linux build configuration
+
+### Changed
+- Updated README with GitHub Actions badges (CI, Release, Docker)
+- Updated project status to reflect CI/CD completion
+- Enhanced CI workflow with better caching and parallel jobs
+
+### Documentation
+- Complete CHANGELOG following Keep a Changelog format
+- Documented all versions from v1.0.0 through v2.1.0
+- Added workflow status badges to README
+
 ## [2.0.0] - 2026-02-26
 
 ### Added
