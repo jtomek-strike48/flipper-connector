@@ -1,7 +1,9 @@
 # Flipper Zero Connector for Strike48
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/jtomek-strike48/flipper-connector)
-[![Version](https://img.shields.io/badge/version-1.2.0-blue)](https://github.com/jtomek-strike48/flipper-connector/releases)
+[![CI](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/ci.yml/badge.svg)](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/ci.yml)
+[![Release](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/release.yml/badge.svg)](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/release.yml)
+[![Docker](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/docker.yml/badge.svg)](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/docker.yml)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/jtomek-strike48/flipper-connector/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 A comprehensive Strike48 connector for Flipper Zero, enabling AI-driven physical security testing with 24 production tools.
@@ -388,17 +390,17 @@ sudo udevadm trigger
 
 ## 🚦 Project Status
 
-**Current Version:** v1.2.0
+**Current Version:** v2.0.0
 
 **Released Features:**
 - ✅ 24 production tools (v1.0.0)
 - ✅ BadUSB with Ducky Script (v1.1.0)
 - ✅ Audit logging system (v1.2.0)
-- ✅ Docker deployment (v1.2.0)
+- ✅ Docker deployment (v2.0.0)
+- ✅ CI/CD pipeline with automated releases (v2.0.0)
 
 **In Development:**
 - ⏳ E2E testing with Prospector Studio
-- 🔜 CI/CD pipeline with automated releases
 
 **Roadmap (Phase 2):**
 - Infrared (IR) remote control tools
