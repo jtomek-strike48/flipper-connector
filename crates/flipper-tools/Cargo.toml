@@ -27,6 +27,13 @@ anyhow = { workspace = true }
 
 # Encoding
 base64 = "0.22"
+hex = "0.4"
 
 # Date/Time
 chrono = "0.4"
+
+# Cryptography
+sha2 = "0.10"
+md5 = "0.7"
+rand = "0.8"
+crc32fast = "1.4"

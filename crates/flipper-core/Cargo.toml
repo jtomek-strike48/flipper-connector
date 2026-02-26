@@ -29,6 +29,13 @@ anyhow = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
+# Metrics
+prometheus = { version = "0.13", features = ["process"] }
+lazy_static = "1.4"
+
+# Retry logic
+tokio-retry = "0.3"
+
 # Strike48 Connector SDK
 strike48-connector = { workspace = true }
 
