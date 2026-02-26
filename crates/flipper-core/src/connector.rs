@@ -1,10 +1,12 @@
 //! Strike48 Connector SDK integration
 
+use crate::audit::{AuditConfig, AuditContext, AuditLogger, JsonAuditLogger, NoOpAuditLogger};
 use crate::tools::{ToolContext, ToolRegistry, ToolSchema};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::Arc;
+use std::time::Instant;
 use strike48_connector::{
     BaseConnector, ConnectorBehavior, ConnectorError, PayloadEncoding,
     Result as SdkResult, TaskTypeSchema,
@@ -56,24 +58,48 @@ pub struct FlipperConnector {
     tools: Arc<RwLock<ToolRegistry>>,
     metadata: HashMap<String, String>,
     task_types: Vec<TaskTypeSchema>,
+    audit_logger: Arc<dyn AuditLogger>,
 }
 
 impl FlipperConnector {
     /// Create a new hello-world connector
     pub fn new(tools: ToolRegistry) -> Self {
+        Self::with_audit_config(tools, None)
+    }
+
+    /// Create a new connector with audit configuration
+    pub fn with_audit_config(tools: ToolRegistry, audit_config: Option<AuditConfig>) -> Self {
         let task_types = build_task_types(&tools);
         let metadata = build_metadata(&tools);
+
+        let audit_logger: Arc<dyn AuditLogger> = if let Some(config) = audit_config {
+            match JsonAuditLogger::new(config) {
+                Ok(logger) => Arc::new(logger),
+                Err(e) => {
+                    tracing::error!("Failed to create audit logger: {}", e);
+                    Arc::new(NoOpAuditLogger)
+                }
+            }
+        } else {
+            Arc::new(NoOpAuditLogger)
+        };
 
         Self {
             tools: Arc::new(RwLock::new(tools)),
             metadata,
             task_types,
+            audit_logger,
         }
     }
 
     /// Get the tool registry
     pub fn tools(&self) -> Arc<RwLock<ToolRegistry>> {
         self.tools.clone()
+    }
+
+    /// Get the audit logger
+    pub fn audit_logger(&self) -> Arc<dyn AuditLogger> {
+        self.audit_logger.clone()
     }
 }
 
@@ -92,9 +118,12 @@ impl BaseConnector for FlipperConnector {
         _capability_id: Option<&str>,
     ) -> Pin<Box<dyn std::future::Future<Output = SdkResult<Value>> + Send>> {
         let tools = self.tools.clone();
+        let audit_logger = self.audit_logger.clone();
 
         Box::pin(async move {
             tracing::debug!("Raw execute request: {}", request);
+
+            let start = Instant::now();
 
             // Parse the request
             let tool_name = request
@@ -114,15 +143,59 @@ impl BaseConnector for FlipperConnector {
             let ctx = ToolContext::default();
             let registry = tools.read().await;
 
-            match registry.execute(tool_name, params, &ctx).await {
-                Ok(result) => {
-                    let result_value = serde_json::to_value(&result).unwrap_or(Value::Null);
+            // Execute the tool
+            let result = registry.execute(tool_name, params.clone(), &ctx).await;
+            let duration_ms = start.elapsed().as_millis() as u64;
+
+            // Create audit context
+            let audit_context = AuditContext {
+                user_id: None,
+                session_id: None,
+                source_ip: None,
+                device_serial: None,
+                connector_version: env!("CARGO_PKG_VERSION").to_string(),
+            };
+
+            // Log the execution
+            match &result {
+                Ok(tool_result) => {
+                    let result_value = serde_json::to_value(tool_result).ok();
+
+                    // Log successful execution
+                    if let Err(e) = audit_logger.log_tool_execution(
+                        tool_name,
+                        Some(params),
+                        tool_result.success,
+                        duration_ms,
+                        result_value.clone(),
+                        tool_result.error.clone(),
+                        Some(audit_context),
+                    ) {
+                        tracing::error!("Failed to log audit event: {}", e);
+                    }
+
+                    let result_value = serde_json::to_value(tool_result).unwrap_or(Value::Null);
                     Ok(result_value)
                 }
-                Err(e) => Ok(serde_json::json!({
-                    "success": false,
-                    "error": e.to_string()
-                })),
+                Err(e) => {
+                    // Log failed execution
+                    if let Err(log_err) = audit_logger.log_tool_execution(
+                        tool_name,
+                        Some(params),
+                        false,
+                        duration_ms,
+                        None,
+                        Some(e.to_string()),
+                        Some(audit_context),
+                    ) {
+                        tracing::error!("Failed to log audit event: {}", log_err);
+                    }
+
+                    Ok(serde_json::json!({
+                        "success": false,
+                        "error": e.to_string()
+                    }))
+                }
             }
         })
     }

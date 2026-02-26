@@ -18,6 +18,9 @@ serde_json = { workspace = true }
 # Time
 chrono = { workspace = true }
 
+# UUID
+uuid = { workspace = true }
+
 # Error handling
 thiserror = { workspace = true }
 anyhow = { workspace = true }

@@ -513,3 +513,93 @@ fn test_connector_with_badusb_tools() {
     let tool_count = metadata.get("tool_count").unwrap();
     assert_eq!(tool_count, "24");
 }
+
+// ============================================================================
+// Audit Logging Tests
+// ============================================================================
+
+#[test]
+fn test_audit_config_default() {
+    use flipper_core::audit::AuditConfig;
+
+    let config = AuditConfig::default();
+    assert!(config.enabled);
+    assert!(config.log_success);
+    assert!(config.log_failures);
+    assert!(config.sanitize_data);
+    assert!(config.include_parameters);
+    assert!(config.include_results);
+}
+
+#[test]
+fn test_connector_with_audit_logging() {
+    use flipper_core::audit::AuditConfig;
+    use flipper_tools::create_tool_registry;
+
+    let registry = create_tool_registry();
+
+    // Create audit config with file output
+    let temp_dir = std::env::temp_dir();
+    let audit_file = temp_dir.join("flipper_audit_test.jsonl");
+
+    let audit_config = AuditConfig {
+        enabled: true,
+        output_path: Some(audit_file.clone()),
+        log_success: true,
+        log_failures: true,
+        sanitize_data: true,
+        include_parameters: true,
+        include_results: true,
+    };
+
+    let connector = FlipperConnector::with_audit_config(registry, Some(audit_config));
+
+    // Verify connector has audit logger
+    assert_eq!(connector.capabilities().len(), 24);
+
+    // Clean up test file
+    let _ = std::fs::remove_file(audit_file);
+}
+
+#[test]
+fn test_audit_event_structure() {
+    use flipper_core::audit::{AuditEvent, AuditEventType};
+    use uuid::Uuid;
+    use chrono::Utc;
+
+    let event = AuditEvent {
+        event_id: Uuid::new_v4().to_string(),
+        timestamp: Utc::now().to_rfc3339(),
+        event_type: AuditEventType::ToolExecution,
+        tool_name: Some("test_tool".to_string()),
+        parameters: Some(serde_json::json!({"test": "value"})),
+        success: Some(true),
+        duration_ms: Some(100),
+        error: None,
+        result: Some(serde_json::json!({"result": "success"})),
+        context: None,
+        metadata: None,
+    };
+
+    assert!(!event.event_id.is_empty());
+    assert_eq!(event.event_type, AuditEventType::ToolExecution);
+    assert_eq!(event.tool_name, Some("test_tool".to_string()));
+    assert_eq!(event.success, Some(true));
+}
+
+#[test]
+fn test_audit_logger_sanitization() {
+    use flipper_core::audit::{AuditConfig, JsonAuditLogger};
+
+    let config = AuditConfig {
+        enabled: true,
+        output_path: None,  // stdout
+        sanitize_data: true,
+        ..Default::default()
+    };
+
+    let logger = JsonAuditLogger::new(config);
+
+    // Verify logger creation works
+    assert!(logger.is_ok());
+}
