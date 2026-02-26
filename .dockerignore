@@ -1,0 +1,53 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+*.pdb
+
+# Git
+.git/
+.gitignore
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation (copied separately if needed)
+*.md
+docs/
+
+# Spike/test programs
+spike/
+
+# Logs
+*.log
+*.jsonl
+
+# Cargo lock is needed for reproducible builds, so don't ignore it
+# Cargo.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build cache
+.cargo/
+
+# Test coverage
+tarpaulin-report.html
+cobertura.xml
+
+# Benchmark results
+criterion/

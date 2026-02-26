@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  flipper-connector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: flipper-connector:latest
+    container_name: flipper-connector
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Environment variables
+    environment:
+      - RUST_LOG=${RUST_LOG:-info}
+      - FLIPPER_AUDIT_ENABLED=${FLIPPER_AUDIT_ENABLED:-true}
+      - FLIPPER_AUDIT_LOG=/var/log/flipper/audit.jsonl
+      - FLIPPER_LOG_LEVEL=${FLIPPER_LOG_LEVEL:-info}
+
+    # Volumes for persistent data
+    volumes:
+      # Audit logs
+      - ./logs:/var/log/flipper
+      # Configuration files (if any)
+      - ./config:/etc/flipper
+      # Mount host USB devices (required for Flipper Zero access)
+      - /dev/bus/usb:/dev/bus/usb:rw
+
+    # Device access for USB connection to Flipper Zero
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+
+    # Privileged mode for USB device access
+    # Alternative: Use --device flag or specific device mapping
+    privileged: false
+
+    # Add USB device capabilities
+    cap_add:
+      - SYS_RAWIO
+
+    # Network configuration
+    # Uncomment if Strike48 needs network access
+    # ports:
+    #   - "8080:8080"
+
+    # Resource limits (adjust as needed)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+    # Health check (uncomment if supported)
+    # healthcheck:
+    #   test: ["CMD", "flipper-agent", "health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 5s
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Volumes (optional: use named volumes instead of bind mounts)
+volumes:
+  flipper-logs:
+    driver: local
+  flipper-config:
+    driver: local
+
+# Networks (optional: define custom network)
+networks:
+  default:
+    name: flipper-network
