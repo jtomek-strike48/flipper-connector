@@ -3,18 +3,21 @@
 [![CI](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/ci.yml/badge.svg)](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/ci.yml)
 [![Release](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/release.yml/badge.svg)](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/release.yml)
 [![Docker](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/docker.yml/badge.svg)](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/docker.yml)
-[![Version](https://img.shields.io/badge/version-2.1.0-blue)](https://github.com/jtomek-strike48/flipper-connector/releases)
+[![Version](https://img.shields.io/badge/version-2.2.0-blue)](https://github.com/jtomek-strike48/flipper-connector/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A comprehensive Strike48 connector for Flipper Zero, enabling AI-driven physical security testing with 24 production tools.
+A comprehensive Strike48 connector for Flipper Zero, enabling AI-driven physical security testing with 39 production tools.
 
 ## 🎯 Overview
 
-The Flipper Zero Connector integrates Flipper Zero with the Strike48 pentesting platform, exposing NFC, RFID, Sub-GHz, and BadUSB capabilities as discrete tools for autonomous AI-driven security assessments.
+The Flipper Zero Connector integrates Flipper Zero with the Strike48 pentesting platform, exposing NFC, RFID, Sub-GHz, BadUSB, iButton, Infrared, GPIO, and Bluetooth LE capabilities as discrete tools for autonomous AI-driven security assessments.
 
 ### Key Features
 
-- **24 Production Tools** - NFC, RFID, Sub-GHz, BadUSB, filesystem, batch operations
+- **39 Production Tools** - Complete hardware security toolkit across 9 categories
+- **Physical Access Testing** - NFC, RFID, iButton, and IR for access control assessment
+- **Wireless Security** - Bluetooth LE scanning, enumeration, and security testing
+- **Hardware Debugging** - GPIO, UART, I2C, SPI for IoT and embedded system testing
 - **USB HID Keyboard Emulation** - BadUSB with complete Ducky Script support
 - **Enterprise Audit Logging** - Structured JSON logs with compliance support
 - **File-Based Workflow** - Reliable alternative to app-based control
@@ -103,6 +106,37 @@ Supports 40+ Ducky Script commands for USB keyboard emulation
 - `flipper_nfc_clone` - Clone NFC files with UID modification
 - `flipper_rfid_generate` - Generate sequential RFID badges (1-100)
 
+### iButton Operations (3 tools)
+- `flipper_ibutton_read` - Read and parse iButton (Dallas key) files
+- `flipper_ibutton_write` - Create iButton files from key data
+- `flipper_ibutton_emulate` - Prepare iButton files for emulation
+
+Supported formats: Dallas (1-Wire), Cyfral, Metakom
+
+### Infrared Operations (3 tools)
+- `flipper_ir_read` - Read and parse IR remote files
+- `flipper_ir_write` - Create IR remote files with multi-button support
+- `flipper_ir_send` - Send IR signals from files
+
+Supported protocols: NEC, Samsung32, RC5, RC6, SIRC, Kaseikyo, RCA
+
+### GPIO Operations (5 tools)
+- `flipper_gpio_set` - Set GPIO pin states and modes
+- `flipper_gpio_read` - Read GPIO pin states
+- `flipper_uart_send` - Send data via UART protocol
+- `flipper_i2c_scan` - Scan I2C bus for devices
+- `flipper_spi_exchange` - Exchange data via SPI protocol
+
+Hardware debugging and protocol analysis for IoT security testing
+
+### Bluetooth LE Operations (4 tools)
+- `flipper_ble_scan` - Scan for BLE devices with passive/active modes
+- `flipper_ble_device_info` - Get BLE device information
+- `flipper_ble_enumerate` - Enumerate GATT services and characteristics
+- `flipper_ble_security_test` - Test BLE security (pairing, encryption, auth)
+
+Wireless security testing for BLE locks, IoT devices, and wearables
+
 ## 🐳 Docker Deployment
 
 ### Build and Run
@@ -176,7 +210,7 @@ See [docs/audit-logging.md](docs/audit-logging.md) for complete guide.
 ## 📚 Documentation
 
 ### User Guides
-- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 24 tools
+- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 39 tools
 - [Deployment Guide](docs/deployment.md) - Docker deployment and Strike48 integration
 - [Audit Logging](docs/audit-logging.md) - Compliance and security monitoring
 
@@ -185,6 +219,10 @@ See [docs/audit-logging.md](docs/audit-logging.md) for complete guide.
 - [RFID File Format](docs/rfid-file-format.md) - RFID formats with Wiegand encoding
 - [Sub-GHz File Format](docs/subghz-file-format.md) - Sub-GHz protocol reference
 - [BadUSB File Format](docs/badusb-file-format.md) - Complete Ducky Script reference
+- [iButton File Format](docs/ibutton-file-format.md) - Dallas key formats and security
+- [Infrared File Format](docs/infrared-file-format.md) - IR remote protocols
+- [GPIO Operations](docs/gpio-operations.md) - Hardware debugging and protocols
+- [Bluetooth Operations](docs/bluetooth-operations.md) - BLE security testing
 
 ### Development Summaries
 - [Week 1-4 Summaries](docs/) - Development progress and decisions
@@ -196,7 +234,7 @@ flipper-connector/
 ├── crates/
 │   ├── flipper-core/        # BaseConnector, PentestTool trait, audit logging
 │   ├── flipper-protocol/    # FlipperClient RPC wrapper
-│   └── flipper-tools/       # 24 tool implementations
+│   └── flipper-tools/       # 39 tool implementations
 ├── apps/
 │   └── flipper-agent/       # Headless agent for Strike48
 ├── docs/                    # Comprehensive documentation
@@ -217,7 +255,7 @@ RUST_LOG=debug cargo test --workspace
 ```
 
 **Test Coverage:**
-- 24/24 integration tests passing
+- 39/39 integration tests passing
 - Unit tests for core functionality
 - Schema validation for all tools
 - Audit logging tests
@@ -390,10 +428,14 @@ sudo udevadm trigger
 
 ## 🚦 Project Status
 
-**Current Version:** v2.1.0
+**Current Version:** v2.2.0
 
 **Released Features:**
-- ✅ 24 production tools (v1.0.0)
+- ✅ 39 production tools across 9 categories (v2.2.0)
+- ✅ iButton (Dallas key) operations (v2.2.0)
+- ✅ Infrared remote control (v2.2.0)
+- ✅ GPIO and hardware protocols (UART, I2C, SPI) (v2.2.0)
+- ✅ Bluetooth LE security testing (v2.2.0)
 - ✅ BadUSB with Ducky Script (v1.1.0)
 - ✅ Audit logging system (v1.2.0)
 - ✅ Docker deployment (v2.0.0)
@@ -402,13 +444,12 @@ sudo udevadm trigger
 **In Development:**
 - ⏳ E2E testing with Prospector Studio
 
-**Roadmap (Phase 2):**
-- Infrared (IR) remote control tools
-- GPIO pin control and automation
-- iButton (Dallas key) operations
+**Roadmap (Phase 3):**
 - U2F security key emulation
-- Bluetooth LE connectivity
 - Firmware management tools
+- Advanced BLE attack capabilities
+- Zigbee protocol support
+- Enhanced GPIO automation
 
 ## 🤝 Contributing
 

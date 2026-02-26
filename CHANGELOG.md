@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-02-26
+
+### Added - Phase 2: Hardware Security Expansion
+
+**iButton Operations (3 new tools)**
+- `flipper_ibutton_read` - Read and parse Dallas key files with family code decoding
+- `flipper_ibutton_write` - Create iButton files for Dallas, Cyfral, and Metakom keys
+- `flipper_ibutton_emulate` - Prepare iButton files for hardware emulation
+- Support for Dallas (1-Wire), Cyfral, and Metakom protocols
+- Automatic family code and serial number decoding for Dallas keys
+
+**Infrared Operations (3 new tools)**
+- `flipper_ir_read` - Read and parse IR remote control files
+- `flipper_ir_write` - Create multi-button IR remote files
+- `flipper_ir_send` - Send IR signals from saved files
+- Support for 10+ protocols: NEC, Samsung32, RC5, RC6, SIRC, Kaseikyo, RCA
+- Universal remote database integration
+
+**GPIO Operations (5 new tools)**
+- `flipper_gpio_set` - Configure GPIO pins (input, output, analog modes)
+- `flipper_gpio_read` - Read GPIO pin states
+- `flipper_uart_send` - UART communication with configurable baud rates
+- `flipper_i2c_scan` - I2C bus scanning for device enumeration
+- `flipper_spi_exchange` - SPI data exchange with chip select control
+- Hardware debugging support for IoT and embedded systems
+
+**Bluetooth LE Operations (4 new tools)**
+- `flipper_ble_scan` - Scan for BLE devices (passive/active modes)
+- `flipper_ble_device_info` - Retrieve BLE device information
+- `flipper_ble_enumerate` - Enumerate GATT services and characteristics
+- `flipper_ble_security_test` - Test pairing, encryption, and authentication
+- Security assessment for BLE locks, IoT devices, and wearables
+
+### Documentation
+- `docs/ibutton-file-format.md` - Complete iButton specification with security analysis
+- `docs/infrared-file-format.md` - IR protocol reference and security considerations
+- `docs/gpio-operations.md` - Hardware debugging guide with protocol details
+- `docs/bluetooth-operations.md` - BLE security testing methodology
+- Updated all documentation to reflect 39 total tools
+
+### Changed
+- Expanded from 24 to 39 production tools (+15 tools)
+- Added 4 new tool categories (iButton, Infrared, GPIO, Bluetooth LE)
+- Updated integration tests to validate all 39 tools
+- Enhanced README with comprehensive Phase 2 coverage
+
+### Technical Details
+- Added `chrono` dependency for BLE enumeration timestamps
+- Implemented GPIO pin validation for Flipper Zero pinout
+- Added MAC address validation for BLE operations
+- Expanded test suite to cover all new tool categories
+
+### Statistics
+- **Total Tools:** 39 (was 24, +62.5% increase)
+- **Tool Categories:** 9 (was 5, +80% increase)
+- **Documentation:** 8 format specifications (was 4, +100% increase)
+- **Integration Tests:** 39/39 passing
+- **Code Coverage:** Maintained across all modules
+
 ## [2.1.0] - 2026-02-26
 
 ### Added

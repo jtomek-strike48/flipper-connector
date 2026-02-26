@@ -11,6 +11,10 @@ pub mod batch_operations;
 pub mod search_operations;
 pub mod clone_operations;
 pub mod badusb_operations;
+pub mod ibutton_operations;
+pub mod infrared_operations;
+pub mod gpio_operations;
+pub mod bluetooth_operations;
 
 use flipper_core::tools::ToolRegistry;
 
@@ -28,6 +32,10 @@ pub use badusb_operations::{
     BadUsbUploadTool, BadUsbListTool, BadUsbReadTool,
     BadUsbDeleteTool, BadUsbValidateTool
 };
+pub use ibutton_operations::{IButtonReadTool, IButtonWriteTool, IButtonEmulateTool};
+pub use infrared_operations::{InfraredReadTool, InfraredWriteTool, InfraredSendTool};
+pub use gpio_operations::{GpioSetTool, GpioReadTool, UartTool, I2cScanTool, SpiExchangeTool};
+pub use bluetooth_operations::{BleScanTool, BleDeviceInfoTool, BleEnumerateTool, BleSecurityTestTool};
 
 /// Create a tool registry with all available tools
 pub fn create_tool_registry() -> ToolRegistry {
@@ -78,6 +86,29 @@ pub fn create_tool_registry() -> ToolRegistry {
     registry.register(BadUsbReadTool);
     registry.register(BadUsbDeleteTool);
     registry.register(BadUsbValidateTool);
+
+    // iButton operations
+    registry.register(IButtonReadTool);
+    registry.register(IButtonWriteTool);
+    registry.register(IButtonEmulateTool);
+
+    // Infrared operations
+    registry.register(InfraredReadTool);
+    registry.register(InfraredWriteTool);
+    registry.register(InfraredSendTool);
+
+    // GPIO operations
+    registry.register(GpioSetTool);
+    registry.register(GpioReadTool);
+    registry.register(UartTool);
+    registry.register(I2cScanTool);
+    registry.register(SpiExchangeTool);
+
+    // Bluetooth LE operations
+    registry.register(BleScanTool);
+    registry.register(BleDeviceInfoTool);
+    registry.register(BleEnumerateTool);
+    registry.register(BleSecurityTestTool);
 
     registry
 }

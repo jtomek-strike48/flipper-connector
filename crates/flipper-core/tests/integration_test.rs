@@ -9,6 +9,10 @@ use flipper_tools::{
     BatchReadTool, FileSearchTool, NfcCloneTool, RfidGenerateTool,
     BadUsbUploadTool, BadUsbListTool, BadUsbReadTool,
     BadUsbDeleteTool, BadUsbValidateTool,
+    IButtonReadTool, IButtonWriteTool, IButtonEmulateTool,
+    InfraredReadTool, InfraredWriteTool, InfraredSendTool,
+    GpioSetTool, GpioReadTool, UartTool, I2cScanTool, SpiExchangeTool,
+    BleScanTool, BleDeviceInfoTool, BleEnumerateTool, BleSecurityTestTool,
 };
 use serde_json::json;
 use strike48_connector::BaseConnector;
@@ -168,7 +172,7 @@ fn test_full_registry_with_all_tools() {
     // Week 3: nfc_read, nfc_write, rfid_read, rfid_write, subghz_read, subghz_write (6)
     // Week 4: batch_read, file_search, nfc_clone, rfid_generate (4)
     // BadUSB: badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate (5)
-    assert_eq!(registry.tools().len(), 24);
+    assert_eq!(registry.tools().len(), 39);
 
     let names = registry.names();
 
@@ -195,16 +199,16 @@ fn test_connector_with_week2_tools() {
 
     // Verify connector has all capabilities (now 24 with BadUSB)
     let capabilities = connector.capabilities();
-    assert_eq!(capabilities.len(), 24);
+    assert_eq!(capabilities.len(), 39);
 
     // Verify metadata includes all tools
     let metadata = connector.metadata();
     let tool_names_str = metadata.get("tool_names").unwrap();
     let tool_names: Vec<&str> = tool_names_str.split(',').collect();
-    assert_eq!(tool_names.len(), 24);
+    assert_eq!(tool_names.len(), 39);
 
     let tool_count = metadata.get("tool_count").unwrap();
-    assert_eq!(tool_count, "24");
+    assert_eq!(tool_count, "39");
 }
 
 // ============================================================================
@@ -319,7 +323,7 @@ fn test_full_registry_weeks_1_2_3() {
     // Week 3: nfc_read, nfc_write, rfid_read, rfid_write, subghz_read, subghz_write (6)
     // Week 4: batch_read, file_search, nfc_clone, rfid_generate (4)
     // BadUSB: badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate (5)
-    assert_eq!(registry.tools().len(), 24);
+    assert_eq!(registry.tools().len(), 39);
 
     let names = registry.names();
 
@@ -354,12 +358,12 @@ fn test_connector_with_all_weeks() {
 
     // Verify connector has all capabilities
     let capabilities = connector.capabilities();
-    assert_eq!(capabilities.len(), 24);
+    assert_eq!(capabilities.len(), 39);
 
     // Verify metadata
     let metadata = connector.metadata();
     let tool_count = metadata.get("tool_count").unwrap();
-    assert_eq!(tool_count, "24");
+    assert_eq!(tool_count, "39");
 }
 
 // ============================================================================
@@ -454,7 +458,7 @@ fn test_full_registry_with_badusb() {
     // Week 3: nfc_read, nfc_write, rfid_read, rfid_write, subghz_read, subghz_write (6)
     // Week 4: batch_read, file_search, nfc_clone, rfid_generate (4)
     // BadUSB: badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate (5)
-    assert_eq!(registry.tools().len(), 24);
+    assert_eq!(registry.tools().len(), 39);
 
     let names = registry.names();
 
@@ -502,16 +506,16 @@ fn test_connector_with_badusb_tools() {
 
     // Verify connector has all capabilities (now 24 with BadUSB)
     let capabilities = connector.capabilities();
-    assert_eq!(capabilities.len(), 24);
+    assert_eq!(capabilities.len(), 39);
 
     // Verify metadata includes all tools
     let metadata = connector.metadata();
     let tool_names_str = metadata.get("tool_names").unwrap();
     let tool_names: Vec<&str> = tool_names_str.split(',').collect();
-    assert_eq!(tool_names.len(), 24);
+    assert_eq!(tool_names.len(), 39);
 
     let tool_count = metadata.get("tool_count").unwrap();
-    assert_eq!(tool_count, "24");
+    assert_eq!(tool_count, "39");
 }
 
 // ============================================================================
@@ -555,7 +559,7 @@ fn test_connector_with_audit_logging() {
     let connector = FlipperConnector::with_audit_config(registry, Some(audit_config));
 
     // Verify connector has audit logger
-    assert_eq!(connector.capabilities().len(), 24);
+    assert_eq!(connector.capabilities().len(), 39);
 
     // Clean up test file
     let _ = std::fs::remove_file(audit_file);
