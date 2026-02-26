@@ -7,6 +7,8 @@ use flipper_tools::{
     NfcReadTool, NfcWriteTool, RfidReadTool, RfidWriteTool,
     SubGhzReadTool, SubGhzWriteTool,
     BatchReadTool, FileSearchTool, NfcCloneTool, RfidGenerateTool,
+    BadUsbUploadTool, BadUsbListTool, BadUsbReadTool,
+    BadUsbDeleteTool, BadUsbValidateTool,
 };
 use serde_json::json;
 use strike48_connector::BaseConnector;
@@ -160,12 +162,13 @@ fn test_full_registry_with_all_tools() {
 
     let registry = create_tool_registry();
 
-    // Should have all 19 tools registered
+    // Should have all 24 tools registered
     // Week 1: device_info, file_list, file_read, file_write, file_delete (5)
     // Week 2: dir_create, file_stat, app_list, app_info (4)
     // Week 3: nfc_read, nfc_write, rfid_read, rfid_write, subghz_read, subghz_write (6)
     // Week 4: batch_read, file_search, nfc_clone, rfid_generate (4)
-    assert_eq!(registry.tools().len(), 19);
+    // BadUSB: badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate (5)
+    assert_eq!(registry.tools().len(), 24);
 
     let names = registry.names();
 
@@ -190,18 +193,18 @@ fn test_connector_with_week2_tools() {
     let registry = create_tool_registry();
     let connector = FlipperConnector::new(registry);
 
-    // Verify connector has all capabilities (now 19 with Week 4)
+    // Verify connector has all capabilities (now 24 with BadUSB)
     let capabilities = connector.capabilities();
-    assert_eq!(capabilities.len(), 19);
+    assert_eq!(capabilities.len(), 24);
 
     // Verify metadata includes all tools
     let metadata = connector.metadata();
     let tool_names_str = metadata.get("tool_names").unwrap();
     let tool_names: Vec<&str> = tool_names_str.split(',').collect();
-    assert_eq!(tool_names.len(), 19);
+    assert_eq!(tool_names.len(), 24);
 
     let tool_count = metadata.get("tool_count").unwrap();
-    assert_eq!(tool_count, "19");
+    assert_eq!(tool_count, "24");
 }
 
 // ============================================================================
@@ -310,12 +313,13 @@ fn test_full_registry_weeks_1_2_3() {
 
     let registry = create_tool_registry();
 
-    // Should have all 19 tools registered
+    // Should have all 24 tools registered
     // Week 1: device_info, file_list, file_read, file_write, file_delete (5)
     // Week 2: dir_create, file_stat, app_list, app_info (4)
     // Week 3: nfc_read, nfc_write, rfid_read, rfid_write, subghz_read, subghz_write (6)
     // Week 4: batch_read, file_search, nfc_clone, rfid_generate (4)
-    assert_eq!(registry.tools().len(), 19);
+    // BadUSB: badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate (5)
+    assert_eq!(registry.tools().len(), 24);
 
     let names = registry.names();
 
@@ -350,10 +354,162 @@ fn test_connector_with_all_weeks() {
 
     // Verify connector has all capabilities
     let capabilities = connector.capabilities();
-    assert_eq!(capabilities.len(), 19);
+    assert_eq!(capabilities.len(), 24);
 
     // Verify metadata
     let metadata = connector.metadata();
     let tool_count = metadata.get("tool_count").unwrap();
-    assert_eq!(tool_count, "19");
+    assert_eq!(tool_count, "24");
+}
+
+// ============================================================================
+// BadUSB Tool Tests
+// ============================================================================
+
+#[test]
+fn test_badusb_tool_registration() {
+    let mut registry = ToolRegistry::new();
+
+    // Register BadUSB tools
+    registry.register(BadUsbUploadTool);
+    registry.register(BadUsbListTool);
+    registry.register(BadUsbReadTool);
+    registry.register(BadUsbDeleteTool);
+    registry.register(BadUsbValidateTool);
+
+    // Verify tools are registered
+    assert_eq!(registry.tools().len(), 5);
+
+    let names = registry.names();
+    assert!(names.contains(&"flipper_badusb_upload"));
+    assert!(names.contains(&"flipper_badusb_list"));
+    assert!(names.contains(&"flipper_badusb_read"));
+    assert!(names.contains(&"flipper_badusb_delete"));
+    assert!(names.contains(&"flipper_badusb_validate"));
+}
+
+#[test]
+fn test_badusb_tool_schemas() {
+    let mut registry = ToolRegistry::new();
+
+    registry.register(BadUsbUploadTool);
+    registry.register(BadUsbListTool);
+    registry.register(BadUsbReadTool);
+    registry.register(BadUsbDeleteTool);
+    registry.register(BadUsbValidateTool);
+
+    let schemas = registry.schemas();
+    assert_eq!(schemas.len(), 5);
+
+    // Check BadUsbUploadTool schema
+    let upload = schemas.iter().find(|s| s.name == "flipper_badusb_upload");
+    assert!(upload.is_some());
+    let upload = upload.unwrap();
+    assert_eq!(upload.description, "Upload a BadUSB Ducky Script to the Flipper Zero");
+    assert_eq!(upload.params.len(), 3);
+    assert_eq!(upload.params[0].name, "filename");
+    assert!(upload.params[0].required);
+    assert_eq!(upload.params[1].name, "script");
+    assert!(upload.params[1].required);
+
+    // Check BadUsbListTool schema
+    let list = schemas.iter().find(|s| s.name == "flipper_badusb_list");
+    assert!(list.is_some());
+    let list = list.unwrap();
+    assert_eq!(list.description, "List all BadUSB scripts on the Flipper Zero");
+    assert_eq!(list.params.len(), 0);
+
+    // Check BadUsbReadTool schema
+    let read = schemas.iter().find(|s| s.name == "flipper_badusb_read");
+    assert!(read.is_some());
+    let read = read.unwrap();
+    assert_eq!(read.description, "Read and parse a BadUSB script from the Flipper Zero");
+    assert_eq!(read.params.len(), 1);
+    assert_eq!(read.params[0].name, "filename");
+
+    // Check BadUsbDeleteTool schema
+    let delete = schemas.iter().find(|s| s.name == "flipper_badusb_delete");
+    assert!(delete.is_some());
+    let delete = delete.unwrap();
+    assert_eq!(delete.description, "Delete a BadUSB script from the Flipper Zero");
+
+    // Check BadUsbValidateTool schema
+    let validate = schemas.iter().find(|s| s.name == "flipper_badusb_validate");
+    assert!(validate.is_some());
+    let validate = validate.unwrap();
+    assert_eq!(validate.description, "Validate Ducky Script syntax without uploading");
+    assert_eq!(validate.params.len(), 1);
+    assert_eq!(validate.params[0].name, "script");
+}
+
+#[test]
+fn test_full_registry_with_badusb() {
+    use flipper_tools::create_tool_registry;
+
+    let registry = create_tool_registry();
+
+    // Should have all 24 tools registered
+    // Week 1: device_info, file_list, file_read, file_write, file_delete (5)
+    // Week 2: dir_create, file_stat, app_list, app_info (4)
+    // Week 3: nfc_read, nfc_write, rfid_read, rfid_write, subghz_read, subghz_write (6)
+    // Week 4: batch_read, file_search, nfc_clone, rfid_generate (4)
+    // BadUSB: badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate (5)
+    assert_eq!(registry.tools().len(), 24);
+
+    let names = registry.names();
+
+    // Week 1 tools
+    assert!(names.contains(&"flipper_device_info"));
+    assert!(names.contains(&"flipper_file_list"));
+    assert!(names.contains(&"flipper_file_read"));
+    assert!(names.contains(&"flipper_file_write"));
+    assert!(names.contains(&"flipper_file_delete"));
+
+    // Week 2 tools
+    assert!(names.contains(&"flipper_dir_create"));
+    assert!(names.contains(&"flipper_file_stat"));
+    assert!(names.contains(&"flipper_app_list"));
+    assert!(names.contains(&"flipper_app_info"));
+
+    // Week 3 tools
+    assert!(names.contains(&"flipper_nfc_read"));
+    assert!(names.contains(&"flipper_nfc_write"));
+    assert!(names.contains(&"flipper_rfid_read"));
+    assert!(names.contains(&"flipper_rfid_write"));
+    assert!(names.contains(&"flipper_subghz_read"));
+    assert!(names.contains(&"flipper_subghz_write"));
+
+    // Week 4 tools
+    assert!(names.contains(&"flipper_batch_read"));
+    assert!(names.contains(&"flipper_file_search"));
+    assert!(names.contains(&"flipper_nfc_clone"));
+    assert!(names.contains(&"flipper_rfid_generate"));
+
+    // BadUSB tools
+    assert!(names.contains(&"flipper_badusb_upload"));
+    assert!(names.contains(&"flipper_badusb_list"));
+    assert!(names.contains(&"flipper_badusb_read"));
+    assert!(names.contains(&"flipper_badusb_delete"));
+    assert!(names.contains(&"flipper_badusb_validate"));
+}
+
+#[test]
+fn test_connector_with_badusb_tools() {
+    use flipper_tools::create_tool_registry;
+
+    let registry = create_tool_registry();
+    let connector = FlipperConnector::new(registry);
+
+    // Verify connector has all capabilities (now 24 with BadUSB)
+    let capabilities = connector.capabilities();
+    assert_eq!(capabilities.len(), 24);
+
+    // Verify metadata includes all tools
+    let metadata = connector.metadata();
+    let tool_names_str = metadata.get("tool_names").unwrap();
+    let tool_names: Vec<&str> = tool_names_str.split(',').collect();
+    assert_eq!(tool_names.len(), 24);
+
+    let tool_count = metadata.get("tool_count").unwrap();
+    assert_eq!(tool_count, "24");
 }

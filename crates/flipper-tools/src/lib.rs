@@ -10,6 +10,7 @@ pub mod subghz_operations;
 pub mod batch_operations;
 pub mod search_operations;
 pub mod clone_operations;
+pub mod badusb_operations;
 
 use flipper_core::tools::ToolRegistry;
 
@@ -23,6 +24,10 @@ pub use subghz_operations::{SubGhzReadTool, SubGhzWriteTool};
 pub use batch_operations::BatchReadTool;
 pub use search_operations::FileSearchTool;
 pub use clone_operations::{NfcCloneTool, RfidGenerateTool};
+pub use badusb_operations::{
+    BadUsbUploadTool, BadUsbListTool, BadUsbReadTool,
+    BadUsbDeleteTool, BadUsbValidateTool
+};
 
 /// Create a tool registry with all available tools
 pub fn create_tool_registry() -> ToolRegistry {
@@ -66,6 +71,13 @@ pub fn create_tool_registry() -> ToolRegistry {
     // Clone operations
     registry.register(NfcCloneTool);
     registry.register(RfidGenerateTool);
+
+    // BadUSB operations
+    registry.register(BadUsbUploadTool);
+    registry.register(BadUsbListTool);
+    registry.register(BadUsbReadTool);
+    registry.register(BadUsbDeleteTool);
+    registry.register(BadUsbValidateTool);
 
     registry
 }

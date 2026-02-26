@@ -1,6 +1,6 @@
 # Flipper Zero Connector - Tool Usage Guide
 
-Complete reference for all 19 tools in the Flipper Zero connector.
+Complete reference for all 24 tools in the Flipper Zero connector.
 
 ## Table of Contents
 
@@ -10,7 +10,8 @@ Complete reference for all 19 tools in the Flipper Zero connector.
 4. [RFID Operations](#rfid-operations) (2 tools)
 5. [Sub-GHz Operations](#sub-ghz-operations) (2 tools)
 6. [Batch & Utility Operations](#batch--utility-operations) (4 tools)
-7. [Common Workflows](#common-workflows)
+7. [BadUSB Operations](#badusb-operations) (5 tools)
+8. [Common Workflows](#common-workflows)
 
 ---
 
@@ -497,6 +498,204 @@ Generate sequential RFID badges for testing.
 
 ---
 
+## BadUSB Operations
+
+### 20. flipper_badusb_upload
+
+Upload a BadUSB Ducky Script to the Flipper Zero.
+
+**Parameters:**
+- `filename` (required): Script filename (without .txt extension)
+- `script` (required): Ducky Script content (multiline string)
+- `validate` (optional): Validate syntax before upload (default: true)
+
+**Example:**
+```json
+{
+  "tool": "flipper_badusb_upload",
+  "params": {
+    "filename": "windows_info",
+    "script": "REM System info collector\nDELAY 1000\nGUI r\nDELAY 500\nSTRING cmd\nENTER\nDELAY 1000\nSTRING systeminfo\nENTER",
+    "validate": true
+  }
+}
+```
+
+### 21. flipper_badusb_list
+
+List all BadUSB scripts on the Flipper Zero.
+
+**Parameters:** None
+
+**Example:**
+```json
+{
+  "tool": "flipper_badusb_list",
+  "params": {}
+}
+```
+
+**Sample Response:**
+```json
+{
+  "scripts": [
+    {
+      "name": "windows_info.txt",
+      "path": "/ext/badusb/windows_info.txt",
+      "size": 156,
+      "size_human": "156 B"
+    }
+  ],
+  "count": 1,
+  "directory": "/ext/badusb"
+}
+```
+
+### 22. flipper_badusb_read
+
+Read and parse a BadUSB script from the Flipper Zero.
+
+**Parameters:**
+- `filename` (required): Script filename (with or without .txt extension)
+
+**Returns:**
+- Script content
+- Analysis (line count, commands used, estimated duration, etc.)
+
+**Example:**
+```json
+{
+  "tool": "flipper_badusb_read",
+  "params": {
+    "filename": "windows_info"
+  }
+}
+```
+
+**Sample Response:**
+```json
+{
+  "path": "/ext/badusb/windows_info.txt",
+  "filename": "windows_info.txt",
+  "script": "REM System info\nDELAY 1000\n...",
+  "analysis": {
+    "total_lines": 10,
+    "command_lines": 7,
+    "comment_lines": 2,
+    "empty_lines": 1,
+    "total_delay_ms": 3000,
+    "estimated_duration_sec": 3.0,
+    "commands_used": ["REM", "DELAY", "GUI", "STRING", "ENTER"],
+    "command_count": 5
+  }
+}
+```
+
+### 23. flipper_badusb_delete
+
+Delete a BadUSB script from the Flipper Zero.
+
+**Parameters:**
+- `filename` (required): Script filename (with or without .txt extension)
+
+**Example:**
+```json
+{
+  "tool": "flipper_badusb_delete",
+  "params": {
+    "filename": "old_script"
+  }
+}
+```
+
+### 24. flipper_badusb_validate
+
+Validate Ducky Script syntax without uploading.
+
+**Parameters:**
+- `script` (required): Ducky Script content to validate
+
+**Returns:**
+- Validation status (valid/invalid)
+- Analysis if valid
+- Error message if invalid
+
+**Example (Valid Script):**
+```json
+{
+  "tool": "flipper_badusb_validate",
+  "params": {
+    "script": "DELAY 1000\nSTRING test\nENTER"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "valid": true,
+  "analysis": {
+    "total_lines": 3,
+    "command_lines": 3,
+    "total_delay_ms": 1000,
+    "commands_used": ["DELAY", "STRING", "ENTER"]
+  }
+}
+```
+
+**Example (Invalid Script):**
+```json
+{
+  "tool": "flipper_badusb_validate",
+  "params": {
+    "script": "INVALID_COMMAND test\nDELAY bad_value"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "valid": false,
+  "error": "Line 1: Unknown command 'INVALID_COMMAND'"
+}
+```
+
+### Supported Ducky Script Commands
+
+**Basic Commands:**
+- `REM` - Comment
+- `DELAY` - Wait (milliseconds)
+- `STRING` - Type text
+- `STRINGLN` - Type text + ENTER
+
+**Special Keys:**
+- `ENTER`, `SPACE`, `TAB`, `ESCAPE`, `BACKSPACE`, `DELETE`
+- `HOME`, `END`, `INSERT`, `PAGEUP`, `PAGEDOWN`
+- `CAPSLOCK`, `NUMLOCK`, `SCROLLLOCK`, `PRINTSCREEN`
+
+**Arrow Keys:**
+- `UP`, `DOWN`, `LEFT`, `RIGHT`
+
+**Function Keys:**
+- `F1` through `F12`
+
+**Modifiers:**
+- `GUI` (Windows/Command key)
+- `CTRL` / `CONTROL`
+- `SHIFT`
+- `ALT` / `OPTION`
+
+**Modifier Combinations:**
+- `CTRL-ALT DELETE`
+- `CTRL-SHIFT ESC`
+- `ALT-TAB`
+- `GUI r` (Windows+R)
+
+See [badusb-file-format.md](badusb-file-format.md) for complete syntax reference and examples.
+
+---
+
 ## Common Workflows
 
 ### Workflow 1: Clone an NFC Badge
@@ -629,7 +828,8 @@ Generate sequential RFID badges for testing.
 | RFID | 2 | rfid_read, rfid_write |
 | Sub-GHz | 2 | subghz_read, subghz_write |
 | Batch & Utility | 4 | batch_read, file_search, nfc_clone, rfid_generate |
-| **Total** | **19** | |
+| BadUSB | 5 | badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate |
+| **Total** | **24** | |
 
 ---
 
