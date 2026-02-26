@@ -1,0 +1,29 @@
+[package]
+name = "flipper-tools"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Tool implementations for Flipper Zero connector"
+
+[dependencies]
+# Internal
+flipper-core = { workspace = true }
+flipper-protocol = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+
+# Encoding
+base64 = "0.22"

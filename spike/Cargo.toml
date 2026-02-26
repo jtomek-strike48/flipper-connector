@@ -1,0 +1,128 @@
+[package]
+name = "flipper-spike"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "app-research"
+path = "app_research.rs"
+
+[[bin]]
+name = "list-apps"
+path = "list_apps.rs"
+
+[[bin]]
+name = "explore-apps"
+path = "explore_apps.rs"
+
+[[bin]]
+name = "test-load-file"
+path = "test_load_file.rs"
+
+[[bin]]
+name = "test-start-args"
+path = "test_start_args.rs"
+
+[[bin]]
+name = "force-cleanup"
+path = "force_cleanup.rs"
+
+[[bin]]
+name = "test-builtin-apps"
+path = "test_builtin_apps.rs"
+
+[[bin]]
+name = "test-app-state"
+path = "test_app_state.rs"
+
+[[bin]]
+name = "test-button-back"
+path = "test_button_back.rs"
+
+[[bin]]
+name = "test-gui-input"
+path = "test_gui_input.rs"
+
+[[bin]]
+name = "test-gui-navigation"
+path = "test_gui_navigation.rs"
+
+[[bin]]
+name = "demo-app-launch"
+path = "demo_app_launch.rs"
+
+[[bin]]
+name = "check-firmware"
+path = "check_firmware.rs"
+
+[[bin]]
+name = "test-week2-tools"
+path = "test_week2_tools.rs"
+
+[[bin]]
+name = "test-app-management"
+path = "test_app_management.rs"
+
+[[bin]]
+name = "read-nfc-files"
+path = "read_nfc_files.rs"
+
+[[bin]]
+name = "read-nfc-examples"
+path = "read_nfc_examples.rs"
+
+[[bin]]
+name = "read-rfid-sub-files"
+path = "read_rfid_sub_files.rs"
+
+[[bin]]
+name = "read-rfid-examples"
+path = "read_rfid_examples.rs"
+
+[[bin]]
+name = "list-subghz-files"
+path = "list_subghz_files.rs"
+
+[[bin]]
+name = "test-nfc-read"
+path = "test_nfc_read.rs"
+
+[[bin]]
+name = "test-nfc-write"
+path = "test_nfc_write.rs"
+
+[[bin]]
+name = "test-rfid-tools"
+path = "test_rfid_tools.rs"
+
+[[bin]]
+name = "test-subghz-tools"
+path = "test_subghz_tools.rs"
+
+[[bin]]
+name = "test-batch-read"
+path = "test_batch_read.rs"
+
+[dependencies]
+# Flipper Zero RPC library - CRITICAL EVALUATION TARGET
+flipper-rpc = { version = "0.9.4", features = ["full"] }
+
+# Internal crates
+flipper-protocol = { path = "../crates/flipper-protocol" }
+flipper-tools = { path = "../crates/flipper-tools" }
+flipper-core = { path = "../crates/flipper-core" }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Error handling
+anyhow = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Serialization
+serde_json = "1"

@@ -1,0 +1,49 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/flipper-core",
+    "crates/flipper-protocol",
+    "crates/flipper-tools",
+    "apps/flipper-agent",
+    "spike",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Strike48"]
+license = "MIT"
+
+[workspace.dependencies]
+# Async
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Platform-specific
+sysinfo = "0.32"
+
+# Strike48 Connector SDK
+strike48-connector = { path = "../sdk-rs/crates/connector" }
+
+# Flipper Zero RPC
+flipper-rpc = { version = "0.9.4", features = ["full"] }
+
+# Internal crates
+flipper-core = { path = "crates/flipper-core" }
+flipper-protocol = { path = "crates/flipper-protocol" }
+flipper-tools = { path = "crates/flipper-tools" }

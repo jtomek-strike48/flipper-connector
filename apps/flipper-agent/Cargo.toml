@@ -1,0 +1,33 @@
+[package]
+name = "flipper-agent"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Headless agent for Flipper Zero connector"
+
+[[bin]]
+name = "flipper-agent"
+path = "src/main.rs"
+
+[dependencies]
+# Internal crates
+flipper-core = { workspace = true }
+flipper-protocol = { workspace = true }
+flipper-tools = { workspace = true }
+
+# Strike48 Connector SDK
+strike48-connector = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+
+# Serialization
+serde_json = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
