@@ -72,8 +72,8 @@ Read, write, clone - MIFARE Classic/Ultralight, NTAG, Bank Cards
 ### 3. RFID Operations (3 tools)
 Read, write, generate - EM4100, H10301 Wiegand, I40134
 
-### 4. Sub-GHz Operations (3 tools)
-Read, write, bruteforce - Princeton, KeeLoq, GateTX, Star Line, and 20+ protocols
+### 4. Sub-GHz Operations (4 tools)
+Read, write, bruteforce, remote creator - Princeton, KeeLoq, GateTX, Star Line, and 20+ protocols
 
 ### 5. BadUSB Operations (5 tools)
 Upload, list, read, delete, validate - Complete Ducky Script support with templates
@@ -198,7 +198,7 @@ See [docs/audit-logging.md](docs/audit-logging.md) for complete guide.
 ## 📚 Documentation
 
 ### User Guides
-- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 101 tools
+- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 102 tools
 - [Deployment Guide](docs/deployment.md) - Docker deployment and Strike48 integration
 - [Audit Logging](docs/audit-logging.md) - Compliance and security monitoring
 
@@ -436,7 +436,7 @@ sudo udevadm trigger
 - ✅ Docker deployment (v2.0.0)
 
 **Production Ready:**
-- 101/101 tools tested and validated
+- 101/102 tools tested and validated
 - Full async/await architecture
 - Comprehensive error handling
 - Enterprise-grade observability

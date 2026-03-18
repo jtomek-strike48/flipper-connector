@@ -1,6 +1,6 @@
 # Flipper Zero Connector
 
-Production-ready Strike48 connector for Flipper Zero with 101 tools across 20 categories, including Unleashed firmware support.
+Production-ready Strike48 connector for Flipper Zero with 102 tools across 20 categories, including Unleashed firmware support.
 
 ## Architecture
 
@@ -11,10 +11,10 @@ Rust workspace with four crates:
   audit logging, metrics, error handling.
 - **flipper-protocol** — `FlipperClient` RPC wrapper around the `flipper-rpc` crate,
   providing connection management and protocol abstraction.
-- **flipper-tools** — 101 tool implementations across NFC, RFID, Sub-GHz (including bruteforce),
-  BadUSB, iButton, Infrared, GPIO, Bluetooth LE, U2F/FIDO2, Zigbee, firmware, storage,
-  system utilities, display/audio, network, cryptography, protocol DB, scripting,
-  batch operations, and security audit.
+- **flipper-tools** — 102 tool implementations across NFC, RFID, Sub-GHz (including bruteforce
+  and remote creator), BadUSB, iButton, Infrared, GPIO, Bluetooth LE, U2F/FIDO2, Zigbee,
+  firmware, storage, system utilities, display/audio, network, cryptography, protocol DB,
+  scripting, batch operations, and security audit.
 - **flipper-agent** — Headless binary for Strike48 platform deployment.
 
 ## SDK Dependency
@@ -47,7 +47,7 @@ just run            # cargo run --package flipper-agent
 - **metrics.rs** implements Prometheus metrics for observability.
 - Every tool uses `execute_timed` for consistent duration tracking.
 - Integration tests in `crates/core/tests/` exercise the full
-  connector → registry → tool pipeline for all 101 tools.
+  connector → registry → tool pipeline for all 102 tools.
 
 ## Documentation
 

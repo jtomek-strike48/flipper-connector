@@ -535,3 +535,210 @@ fn generate_bruteforce_batch(
 
     content
 }
+
+// === Sub-GHz Remote Creator Tool ===
+
+pub struct SubGhzRemoteTool;
+
+#[async_trait]
+impl PentestTool for SubGhzRemoteTool {
+    fn name(&self) -> &str {
+        "flipper_subghz_remote_create"
+    }
+
+    fn description(&self) -> &str {
+        "Create Sub-GHz Remote map file for 5-button quick-access remote (Unleashed firmware)"
+    }
+
+    fn schema(&self) -> ToolSchema {
+        ToolSchema {
+            name: self.name().to_string(),
+            description: self.description().to_string(),
+            params: vec![
+                ToolParam {
+                    name: "output_path".to_string(),
+                    param_type: ParamType::String,
+                    description: "Output path for remote map file (e.g., /ext/subghz_remote/living_room.txt)".to_string(),
+                    required: true,
+                    default: None,
+                },
+                ToolParam {
+                    name: "up_file".to_string(),
+                    param_type: ParamType::String,
+                    description: "Path to .sub file for UP button".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "up_label".to_string(),
+                    param_type: ParamType::String,
+                    description: "Label for UP button (max 16 chars)".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "down_file".to_string(),
+                    param_type: ParamType::String,
+                    description: "Path to .sub file for DOWN button".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "down_label".to_string(),
+                    param_type: ParamType::String,
+                    description: "Label for DOWN button (max 16 chars)".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "left_file".to_string(),
+                    param_type: ParamType::String,
+                    description: "Path to .sub file for LEFT button".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "left_label".to_string(),
+                    param_type: ParamType::String,
+                    description: "Label for LEFT button (max 16 chars)".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "right_file".to_string(),
+                    param_type: ParamType::String,
+                    description: "Path to .sub file for RIGHT button".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "right_label".to_string(),
+                    param_type: ParamType::String,
+                    description: "Label for RIGHT button (max 16 chars)".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "ok_file".to_string(),
+                    param_type: ParamType::String,
+                    description: "Path to .sub file for OK (center) button".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "ok_label".to_string(),
+                    param_type: ParamType::String,
+                    description: "Label for OK button (max 16 chars)".to_string(),
+                    required: false,
+                    default: None,
+                },
+            ],
+            supported_platforms: vec![Platform::Desktop],
+        }
+    }
+
+    async fn execute(&self, params: Value, _ctx: &ToolContext) -> flipper_core::error::Result<ToolResult> {
+        let output_path = params["output_path"]
+            .as_str()
+            .ok_or_else(|| flipper_core::error::Error::InvalidParams("Missing output_path parameter".to_string()))?;
+
+        // Collect button configurations
+        let mut buttons: Vec<(&str, &str, &str, &str)> = Vec::new();
+        let button_configs = [
+            ("up", "UP", "ULABEL"),
+            ("down", "DOWN", "DLABEL"),
+            ("left", "LEFT", "LLABEL"),
+            ("right", "RIGHT", "RLABEL"),
+            ("ok", "OK", "OKLABEL"),
+        ];
+
+        for (param_prefix, file_key, label_key) in button_configs.iter() {
+            let file_param = format!("{}_file", param_prefix);
+            let label_param = format!("{}_label", param_prefix);
+
+            if let Some(file_path) = params[&file_param].as_str() {
+                let label = params[&label_param].as_str().unwrap_or("");
+
+                // Validate label length
+                if label.len() > 16 {
+                    return Err(flipper_core::error::Error::InvalidParams(
+                        format!("{} label exceeds 16 characters", param_prefix.to_uppercase())
+                    ));
+                }
+
+                // Validate file path (no spaces or special chars except - and _)
+                if file_path.contains(' ') || file_path.chars().any(|c| !c.is_ascii_alphanumeric() && c != '/' && c != '.' && c != '-' && c != '_') {
+                    return Err(flipper_core::error::Error::InvalidParams(
+                        format!("{} file path contains invalid characters (no spaces or special chars allowed)", param_prefix.to_uppercase())
+                    ));
+                }
+
+                buttons.push((*file_key, *label_key, file_path, label));
+            }
+        }
+
+        if buttons.is_empty() {
+            return Err(flipper_core::error::Error::InvalidParams(
+                "At least one button must be configured".to_string()
+            ));
+        }
+
+        // Generate remote map file content
+        let content = generate_remote_map(&buttons);
+        let button_count = buttons.len();
+
+        let mut client = FlipperClient::new()
+            .map_err(|e| flipper_core::error::Error::ToolExecution(e.to_string()))?;
+
+        // Ensure directory exists
+        if let Some(dir_path) = std::path::Path::new(output_path).parent() {
+            let dir_str = dir_path.to_string_lossy();
+            client.create_directory(&dir_str).await
+                .map_err(|e| flipper_core::error::Error::ToolExecution(e.to_string()))?;
+        }
+
+        // Write remote map file
+        client.write_file(output_path, content.into_bytes()).await
+            .map_err(|e| flipper_core::error::Error::ToolExecution(e.to_string()))?;
+
+        let mut button_summary = json!({});
+        for (_, _, file_path, label) in &buttons {
+            button_summary[label] = json!(file_path);
+        }
+
+        Ok(ToolResult {
+            success: true,
+            data: json!({
+                "output_path": output_path,
+                "button_count": button_count,
+                "buttons": button_summary,
+                "usage": "Open Sub-GHz Remote app on Flipper Zero and select this map file"
+            }),
+            error: None,
+            duration_ms: 0,
+        })
+    }
+}
+
+/// Generate Sub-GHz Remote map file content
+fn generate_remote_map(buttons: &[(&str, &str, &str, &str)]) -> String {
+    let mut content = String::new();
+
+    content.push_str("# Sub-GHz Remote Map File\n");
+    content.push_str("# Generated by Flipper Zero Connector\n");
+    content.push_str("# Format: BUTTON: /path/to/file.sub\n");
+    content.push_str("#         BUTTONLABEL: Display Text\n");
+    content.push_str("# Buttons: UP, DOWN, LEFT, RIGHT, OK\n");
+    content.push_str("# Labels: Max 16 characters\n");
+    content.push_str("# File paths: No spaces or special characters (- and _ allowed)\n");
+    content.push_str("\n");
+
+    for (file_key, label_key, file_path, label) in buttons {
+        content.push_str(&format!("{}: {}\n", file_key, file_path));
+        if !label.is_empty() {
+            content.push_str(&format!("{}: {}\n", label_key, label));
+        }
+    }
+
+    content
+}
