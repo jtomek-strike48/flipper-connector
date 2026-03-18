@@ -6,7 +6,7 @@
 [![Version](https://img.shields.io/badge/version-3.0.0-blue)](https://github.com/jtomek-strike48/flipper-connector/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A comprehensive Strike48 connector for Flipper Zero, enabling AI-driven physical security testing with **101 production tools** including Unleashed firmware support.
+A comprehensive Strike48 connector for Flipper Zero, enabling AI-driven physical security testing with **104 production tools** including Unleashed firmware support (Sub-GHz bruteforce, remote creator, BadKB Bluetooth keyboard).
 
 ## 🎯 Overview
 
@@ -20,7 +20,7 @@ The Flipper Zero Connector integrates Flipper Zero with the Strike48 pentesting 
 - **Security & Cryptography** - MD5/SHA256/SHA512, AES/RSA key generation, encryption/decryption
 - **Network Operations** - WiFi devboard support with HTTP, ping, DNS, port scanning
 - **Hardware Debugging** - GPIO, UART, I2C, SPI for IoT and embedded system testing
-- **USB HID Attacks** - BadUSB with templates, validation, and complete Ducky Script support
+- **USB/Bluetooth HID Attacks** - BadUSB (wired) and BadKB (wireless Bluetooth) with templates, validation, and complete Ducky Script support
 - **System Management** - Storage, power, firmware, display, and audio operations
 - **Automation & Scripting** - Workflows, batch operations, task scheduling
 - **Security Audit Suite** - Comprehensive audit tool with risk assessment and reporting
@@ -75,8 +75,9 @@ Read, write, generate - EM4100, H10301 Wiegand, I40134
 ### 4. Sub-GHz Operations (4 tools)
 Read, write, bruteforce, remote creator - Princeton, KeeLoq, GateTX, Star Line, and 20+ protocols
 
-### 5. BadUSB Operations (5 tools)
-Upload, list, read, delete, validate - Complete Ducky Script support with templates
+### 5. BadUSB/BadKB Operations (7 tools)
+**BadUSB (USB):** Upload, list, read, delete, validate
+**BadKB (Bluetooth):** Upload, execute - Wireless HID attacks via Bluetooth
 
 ### 6. iButton Operations (3 tools)
 Read, write, emulate - Dallas (1-Wire), Cyfral, Metakom
@@ -198,7 +199,7 @@ See [docs/audit-logging.md](docs/audit-logging.md) for complete guide.
 ## 📚 Documentation
 
 ### User Guides
-- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 102 tools
+- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 104 tools
 - [Deployment Guide](docs/deployment.md) - Docker deployment and Strike48 integration
 - [Audit Logging](docs/audit-logging.md) - Compliance and security monitoring
 
@@ -436,7 +437,7 @@ sudo udevadm trigger
 - ✅ Docker deployment (v2.0.0)
 
 **Production Ready:**
-- 101/102 tools tested and validated
+- 101/104 tools tested and validated
 - Full async/await architecture
 - Comprehensive error handling
 - Enterprise-grade observability

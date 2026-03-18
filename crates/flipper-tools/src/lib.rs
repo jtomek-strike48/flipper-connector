@@ -44,7 +44,7 @@ pub use search_operations::FileSearchTool;
 pub use clone_operations::{NfcCloneTool, RfidGenerateTool};
 pub use badusb_operations::{
     BadUsbUploadTool, BadUsbListTool, BadUsbReadTool,
-    BadUsbDeleteTool, BadUsbValidateTool
+    BadUsbDeleteTool, BadUsbValidateTool, BadKbUploadTool, BadKbExecuteTool
 };
 pub use ibutton_operations::{IButtonReadTool, IButtonWriteTool, IButtonEmulateTool};
 pub use infrared_operations::{InfraredReadTool, InfraredWriteTool, InfraredSendTool};
@@ -116,6 +116,10 @@ pub fn create_tool_registry() -> ToolRegistry {
     registry.register(BadUsbReadTool);
     registry.register(BadUsbDeleteTool);
     registry.register(BadUsbValidateTool);
+
+    // BadKB (Bluetooth Keyboard) operations - Unleashed firmware
+    registry.register(BadKbUploadTool);
+    registry.register(BadKbExecuteTool);
 
     // iButton operations
     registry.register(IButtonReadTool);
