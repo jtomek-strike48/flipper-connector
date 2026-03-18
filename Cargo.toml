@@ -5,7 +5,6 @@ members = [
     "crates/flipper-protocol",
     "crates/flipper-tools",
     "apps/flipper-agent",
-    "spike",
 ]
 
 [workspace.package]

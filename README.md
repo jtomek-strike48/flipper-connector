@@ -198,7 +198,7 @@ See [docs/audit-logging.md](docs/audit-logging.md) for complete guide.
 ## 📚 Documentation
 
 ### User Guides
-- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 39 tools
+- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 100 tools
 - [Deployment Guide](docs/deployment.md) - Docker deployment and Strike48 integration
 - [Audit Logging](docs/audit-logging.md) - Compliance and security monitoring
 
@@ -220,13 +220,12 @@ See [docs/audit-logging.md](docs/audit-logging.md) for complete guide.
 ```
 flipper-connector/
 ├── crates/
-│   ├── flipper-core/        # BaseConnector, PentestTool trait, audit logging
+│   ├── flipper-core/        # BaseConnector, PentestTool trait, audit logging, metrics
 │   ├── flipper-protocol/    # FlipperClient RPC wrapper
-│   └── flipper-tools/       # 39 tool implementations
+│   └── flipper-tools/       # 100 tool implementations across 20 categories
 ├── apps/
 │   └── flipper-agent/       # Headless agent for Strike48
-├── docs/                    # Comprehensive documentation
-└── spike/                   # Research and prototypes
+└── docs/                    # Comprehensive documentation
 ```
 
 ## 🧪 Testing
@@ -243,7 +242,7 @@ RUST_LOG=debug cargo test --workspace
 ```
 
 **Test Coverage:**
-- 39/39 integration tests passing
+- 100/100 integration tests passing
 - Unit tests for core functionality
 - Schema validation for all tools
 - Audit logging tests
@@ -274,9 +273,9 @@ cargo build --release --workspace
 
 ### Project Structure
 
-- **flipper-core** - Core types, BaseConnector implementation, audit logging
+- **flipper-core** - Core types, BaseConnector implementation, audit logging, metrics
 - **flipper-protocol** - FlipperClient wrapper around flipper-rpc crate
-- **flipper-tools** - All 24 tool implementations
+- **flipper-tools** - All 100 tool implementations across 20 categories
 - **flipper-agent** - Headless binary for Strike48 deployment
 
 ## 🔧 Configuration

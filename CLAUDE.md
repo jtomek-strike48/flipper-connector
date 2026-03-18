@@ -1,28 +1,28 @@
-# Hello World Connector
+# Flipper Zero Connector
 
-Minimal Strike48 connector built with the same architecture as
-`dioxus-connector`, stripped to essentials for testing and learning.
+Production-ready Strike48 connector for Flipper Zero with 100 tools across 20 categories.
 
 ## Architecture
 
 Rust workspace with four crates:
 
-- **hello-core** — Error types, `PentestTool` trait, `ToolRegistry`,
-  `HelloWorldConnector` (implements `BaseConnector` from the SDK),
-  logging init.
-- **hello-platform** — `SystemInfo` and `CommandExec` traits with a
-  desktop implementation backed by `sysinfo` and `tokio::process`.
-- **hello-tools** — Two concrete tools: `hello_world` (greeting) and
-  `device_info` (system info via platform).
-- **hello-headless** — Binary (`hello-agent`) that creates the
-  connector, runs both tools, and prints results.
+- **flipper-core** — Core types, `PentestTool` trait, `ToolRegistry`,
+  `FlipperConnector` (implements `BaseConnector` from the SDK),
+  audit logging, metrics, error handling.
+- **flipper-protocol** — `FlipperClient` RPC wrapper around the `flipper-rpc` crate,
+  providing connection management and protocol abstraction.
+- **flipper-tools** — 100 tool implementations across NFC, RFID, Sub-GHz, BadUSB,
+  iButton, Infrared, GPIO, Bluetooth LE, U2F/FIDO2, Zigbee, firmware, storage,
+  system utilities, display/audio, network, cryptography, protocol DB, scripting,
+  batch operations, and security audit.
+- **flipper-agent** — Headless binary for Strike48 platform deployment.
 
 ## SDK Dependency
 
 Uses a **path dependency** to the local SDK checkout:
 
 ```
-strike48-connector = { path = "../../sdk-rs/crates/connector" }
+strike48-connector = { path = "../sdk-rs/crates/connector" }
 ```
 
 ## Build Commands
@@ -33,16 +33,27 @@ just lint           # cargo clippy --workspace -- -D warnings
 just fmt            # cargo fmt --all
 just test           # cargo test --workspace
 just build          # cargo build --workspace
-just run            # cargo run --package hello-headless
+just run            # cargo run --package flipper-agent
 ```
 
 ## Key Patterns
 
-- **tools.rs** in `hello-core` is nearly identical to
-  `dioxus-connector/crates/core/src/tools.rs` — same `PentestTool`
-  trait, `ToolSchema`, `ToolResult`, `ToolRegistry`, `execute_timed`.
-- **connector.rs** implements `BaseConnector` directly (no ToolEvent
-  broadcast, no file browser, no workspace path).
+- **tools.rs** defines the `PentestTool` trait, `ToolSchema`, `ToolResult`,
+  `ToolRegistry`, and `execute_timed` for consistent duration tracking.
+- **connector.rs** implements `BaseConnector` with full audit logging,
+  metrics collection, and error handling.
+- **audit.rs** provides enterprise-grade audit logging with automatic
+  sensitive data redaction and compliance support.
+- **metrics.rs** implements Prometheus metrics for observability.
 - Every tool uses `execute_timed` for consistent duration tracking.
 - Integration tests in `crates/core/tests/` exercise the full
-  connector → registry → tool pipeline.
+  connector → registry → tool pipeline for all 100 tools.
+
+## Documentation
+
+Complete documentation in the `docs/` directory:
+- Tool usage guide with examples
+- File format specifications (NFC, RFID, Sub-GHz, BadUSB, iButton, IR)
+- Deployment guide for Docker and Strike48 integration
+- Audit logging configuration
+- Hardware operations reference (GPIO, Bluetooth, etc.)
