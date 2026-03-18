@@ -38,7 +38,7 @@ pub use dir_operations::{DirCreateTool, FileStatTool};
 pub use app_management::{AppListTool, AppInfoTool};
 pub use nfc_operations::{NfcReadTool, NfcWriteTool};
 pub use rfid_operations::{RfidReadTool, RfidWriteTool};
-pub use subghz_operations::{SubGhzReadTool, SubGhzWriteTool};
+pub use subghz_operations::{SubGhzReadTool, SubGhzWriteTool, SubGhzBruteforceTool};
 pub use batch_operations::BatchReadTool;
 pub use search_operations::FileSearchTool;
 pub use clone_operations::{NfcCloneTool, RfidGenerateTool};
@@ -97,6 +97,7 @@ pub fn create_tool_registry() -> ToolRegistry {
     // Sub-GHz operations
     registry.register(SubGhzReadTool);
     registry.register(SubGhzWriteTool);
+    registry.register(SubGhzBruteforceTool);
 
     // Batch operations
     registry.register(BatchReadTool);

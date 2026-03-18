@@ -6,7 +6,7 @@
 [![Version](https://img.shields.io/badge/version-3.0.0-blue)](https://github.com/jtomek-strike48/flipper-connector/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A comprehensive Strike48 connector for Flipper Zero, enabling AI-driven physical security testing with **100 production tools**.
+A comprehensive Strike48 connector for Flipper Zero, enabling AI-driven physical security testing with **101 production tools** including Unleashed firmware support.
 
 ## 🎯 Overview
 
@@ -14,7 +14,7 @@ The Flipper Zero Connector integrates Flipper Zero with the Strike48 pentesting 
 
 ### Key Features
 
-- **100 Production Tools** - The most comprehensive Flipper Zero toolkit across 16 categories
+- **101 Production Tools** - The most comprehensive Flipper Zero toolkit across 16 categories with Unleashed firmware support
 - **Physical Access Testing** - NFC, RFID, iButton, and IR for access control assessment
 - **Advanced Wireless** - Bluetooth LE, Zigbee, U2F/FIDO2, and Sub-GHz protocols
 - **Security & Cryptography** - MD5/SHA256/SHA512, AES/RSA key generation, encryption/decryption
@@ -61,7 +61,7 @@ cargo test --workspace
 cargo run --package flipper-agent
 ```
 
-## 📋 Tool Categories (100 Tools)
+## 📋 Tool Categories (101 Tools)
 
 ### 1. Core Device & File Operations (10 tools)
 Device info, file CRUD operations, directory management, app listing
@@ -72,8 +72,8 @@ Read, write, clone - MIFARE Classic/Ultralight, NTAG, Bank Cards
 ### 3. RFID Operations (3 tools)
 Read, write, generate - EM4100, H10301 Wiegand, I40134
 
-### 4. Sub-GHz Operations (2 tools)
-Read, write - Princeton, KeeLoq, GateTX, Star Line, and 20+ protocols
+### 4. Sub-GHz Operations (3 tools)
+Read, write, bruteforce - Princeton, KeeLoq, GateTX, Star Line, and 20+ protocols
 
 ### 5. BadUSB Operations (5 tools)
 Upload, list, read, delete, validate - Complete Ducky Script support with templates
@@ -198,7 +198,7 @@ See [docs/audit-logging.md](docs/audit-logging.md) for complete guide.
 ## 📚 Documentation
 
 ### User Guides
-- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 100 tools
+- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 101 tools
 - [Deployment Guide](docs/deployment.md) - Docker deployment and Strike48 integration
 - [Audit Logging](docs/audit-logging.md) - Compliance and security monitoring
 
@@ -222,7 +222,7 @@ flipper-connector/
 ├── crates/
 │   ├── flipper-core/        # BaseConnector, PentestTool trait, audit logging, metrics
 │   ├── flipper-protocol/    # FlipperClient RPC wrapper
-│   └── flipper-tools/       # 100 tool implementations across 20 categories
+│   └── flipper-tools/       # 101 tool implementations across 20 categories
 ├── apps/
 │   └── flipper-agent/       # Headless agent for Strike48
 └── docs/                    # Comprehensive documentation
@@ -242,7 +242,7 @@ RUST_LOG=debug cargo test --workspace
 ```
 
 **Test Coverage:**
-- 100/100 integration tests passing
+- 101/101 integration tests passing
 - Unit tests for core functionality
 - Schema validation for all tools
 - Audit logging tests
@@ -275,7 +275,7 @@ cargo build --release --workspace
 
 - **flipper-core** - Core types, BaseConnector implementation, audit logging, metrics
 - **flipper-protocol** - FlipperClient wrapper around flipper-rpc crate
-- **flipper-tools** - All 100 tool implementations across 20 categories
+- **flipper-tools** - All 101 tool implementations across 20 categories
 - **flipper-agent** - Headless binary for Strike48 deployment
 
 ## 🔧 Configuration
@@ -436,7 +436,7 @@ sudo udevadm trigger
 - ✅ Docker deployment (v2.0.0)
 
 **Production Ready:**
-- 100/100 tools tested and validated
+- 101/101 tools tested and validated
 - Full async/await architecture
 - Comprehensive error handling
 - Enterprise-grade observability

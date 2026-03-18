@@ -282,3 +282,256 @@ fn generate_subghz_file(frequency: u32, preset: &str, protocol: &str, key: &str,
 
     content
 }
+
+// === Sub-GHz Bruteforce Tool ===
+
+pub struct SubGhzBruteforceTool;
+
+#[async_trait]
+impl PentestTool for SubGhzBruteforceTool {
+    fn name(&self) -> &str {
+        "flipper_subghz_bruteforce"
+    }
+
+    fn description(&self) -> &str {
+        "Generate Sub-GHz bruteforce files for static code testing (Unleashed firmware)"
+    }
+
+    fn schema(&self) -> ToolSchema {
+        ToolSchema {
+            name: self.name().to_string(),
+            description: self.description().to_string(),
+            params: vec![
+                ToolParam {
+                    name: "output_dir".to_string(),
+                    param_type: ParamType::String,
+                    description: "Output directory for bruteforce files (e.g., /ext/subghz/bruteforce)".to_string(),
+                    required: true,
+                    default: None,
+                },
+                ToolParam {
+                    name: "protocol".to_string(),
+                    param_type: ParamType::String,
+                    description: "Protocol name (e.g., 'Princeton', 'PT-2240', 'Nice FLO')".to_string(),
+                    required: true,
+                    default: None,
+                },
+                ToolParam {
+                    name: "frequency".to_string(),
+                    param_type: ParamType::Number,
+                    description: "Frequency in Hz (e.g., 433920000 for 433.92 MHz, 315000000 for 315 MHz)".to_string(),
+                    required: true,
+                    default: None,
+                },
+                ToolParam {
+                    name: "start_key".to_string(),
+                    param_type: ParamType::String,
+                    description: "Starting key in hex (e.g., '00 00 00 00' for 32-bit)".to_string(),
+                    required: true,
+                    default: None,
+                },
+                ToolParam {
+                    name: "end_key".to_string(),
+                    param_type: ParamType::String,
+                    description: "Ending key in hex (e.g., '00 00 FF FF' for 32-bit)".to_string(),
+                    required: true,
+                    default: None,
+                },
+                ToolParam {
+                    name: "bit_length".to_string(),
+                    param_type: ParamType::Number,
+                    description: "Bit length (12, 24, 32, or 64)".to_string(),
+                    required: true,
+                    default: None,
+                },
+                ToolParam {
+                    name: "te".to_string(),
+                    param_type: ParamType::Number,
+                    description: "Time Element in microseconds (optional, protocol-specific)".to_string(),
+                    required: false,
+                    default: None,
+                },
+                ToolParam {
+                    name: "batch_size".to_string(),
+                    param_type: ParamType::Number,
+                    description: "Number of keys per file (default: 100, max: 1000)".to_string(),
+                    required: false,
+                    default: Some(json!(100)),
+                },
+                ToolParam {
+                    name: "delay_ms".to_string(),
+                    param_type: ParamType::Number,
+                    description: "Delay between transmissions in milliseconds (default: 50)".to_string(),
+                    required: false,
+                    default: Some(json!(50)),
+                },
+            ],
+            supported_platforms: vec![Platform::Desktop],
+        }
+    }
+
+    async fn execute(&self, params: Value, _ctx: &ToolContext) -> flipper_core::error::Result<ToolResult> {
+        let output_dir = params["output_dir"]
+            .as_str()
+            .ok_or_else(|| flipper_core::error::Error::InvalidParams("Missing output_dir parameter".to_string()))?;
+
+        let protocol = params["protocol"]
+            .as_str()
+            .ok_or_else(|| flipper_core::error::Error::InvalidParams("Missing protocol parameter".to_string()))?;
+
+        let frequency = params["frequency"]
+            .as_u64()
+            .ok_or_else(|| flipper_core::error::Error::InvalidParams("Missing frequency parameter".to_string()))? as u32;
+
+        let start_key_str = params["start_key"]
+            .as_str()
+            .ok_or_else(|| flipper_core::error::Error::InvalidParams("Missing start_key parameter".to_string()))?;
+
+        let end_key_str = params["end_key"]
+            .as_str()
+            .ok_or_else(|| flipper_core::error::Error::InvalidParams("Missing end_key parameter".to_string()))?;
+
+        let bit_length = params["bit_length"]
+            .as_u64()
+            .ok_or_else(|| flipper_core::error::Error::InvalidParams("Missing bit_length parameter".to_string()))? as u32;
+
+        let te = params["te"].as_u64().map(|v| v as u32);
+        let batch_size = params["batch_size"].as_u64().unwrap_or(100) as usize;
+        let delay_ms = params["delay_ms"].as_u64().unwrap_or(50) as u32;
+
+        // Validate batch size
+        if batch_size < 1 || batch_size > 1000 {
+            return Err(flipper_core::error::Error::InvalidParams(
+                "batch_size must be between 1 and 1000".to_string()
+            ));
+        }
+
+        // Parse start and end keys
+        let start_key = parse_hex_key(start_key_str)?;
+        let end_key = parse_hex_key(end_key_str)?;
+
+        if start_key > end_key {
+            return Err(flipper_core::error::Error::InvalidParams(
+                "start_key must be less than or equal to end_key".to_string()
+            ));
+        }
+
+        let total_keys = (end_key - start_key + 1) as usize;
+
+        let mut client = FlipperClient::new()
+            .map_err(|e| flipper_core::error::Error::ToolExecution(e.to_string()))?;
+
+        // Create output directory
+        client.create_directory(output_dir).await
+            .map_err(|e| flipper_core::error::Error::ToolExecution(e.to_string()))?;
+
+        let mut files_created = Vec::new();
+        let mut current_key = start_key;
+        let mut file_index = 0;
+
+        while current_key <= end_key {
+            let batch_end = std::cmp::min(current_key + batch_size as u64 - 1, end_key);
+            let filename = format!("{}/bruteforce_{:04}.sub", output_dir, file_index);
+
+            // Generate file content with all keys in this batch
+            let content = generate_bruteforce_batch(
+                frequency,
+                protocol,
+                current_key,
+                batch_end,
+                bit_length,
+                te,
+                delay_ms,
+            );
+
+            // Write file
+            client.write_file(&filename, content.into_bytes()).await
+                .map_err(|e| flipper_core::error::Error::ToolExecution(e.to_string()))?;
+
+            files_created.push(filename);
+            current_key = batch_end + 1;
+            file_index += 1;
+        }
+
+        Ok(ToolResult {
+            success: true,
+            data: json!({
+                "output_dir": output_dir,
+                "protocol": protocol,
+                "frequency": frequency,
+                "frequency_mhz": format!("{:.2} MHz", frequency as f64 / 1_000_000.0),
+                "start_key": start_key_str,
+                "end_key": end_key_str,
+                "bit_length": bit_length,
+                "total_keys": total_keys,
+                "files_created": files_created.len(),
+                "batch_size": batch_size,
+                "delay_ms": delay_ms,
+                "files": files_created,
+                "estimated_time_seconds": (total_keys as u64 * delay_ms as u64) / 1000,
+            }),
+            error: None,
+            duration_ms: 0,
+        })
+    }
+}
+
+/// Parse hex key string to u64
+fn parse_hex_key(key_str: &str) -> Result<u64, flipper_core::error::Error> {
+    let hex_string: String = key_str.split_whitespace().collect();
+    u64::from_str_radix(&hex_string, 16)
+        .map_err(|e| flipper_core::error::Error::InvalidParams(format!("Invalid hex key: {}", e)))
+}
+
+/// Format u64 key to hex string with proper spacing
+fn format_hex_key(key: u64, bit_length: u32) -> String {
+    let byte_count = (bit_length + 7) / 8;
+    let mut result = Vec::new();
+
+    for i in (0..byte_count).rev() {
+        let byte = ((key >> (i * 8)) & 0xFF) as u8;
+        result.push(format!("{:02X}", byte));
+    }
+
+    result.join(" ")
+}
+
+/// Generate bruteforce batch file content
+fn generate_bruteforce_batch(
+    frequency: u32,
+    protocol: &str,
+    start_key: u64,
+    end_key: u64,
+    bit_length: u32,
+    te: Option<u32>,
+    delay_ms: u32,
+) -> String {
+    let mut content = String::new();
+
+    content.push_str("Filetype: Flipper SubGHz Key file\n");
+    content.push_str("Version: 1\n");
+    content.push_str("# Sub-GHz Bruteforce Batch - Unleashed Firmware\n");
+    content.push_str(&format!("# Generated by Flipper Zero Connector\n"));
+    content.push_str(&format!("# Range: {} to {}\n", start_key, end_key));
+    content.push_str(&format!("# Keys in batch: {}\n", end_key - start_key + 1));
+    content.push_str(&format!("# Delay: {}ms between transmissions\n", delay_ms));
+    content.push_str("\n");
+
+    for key in start_key..=end_key {
+        content.push_str(&format!("Frequency: {}\n", frequency));
+        content.push_str("Preset: FuriHalSubGhzPresetOok650Async\n");
+        content.push_str(&format!("Protocol: {}\n", protocol));
+        content.push_str(&format!("Bit: {}\n", bit_length));
+        content.push_str(&format!("Key: {}\n", format_hex_key(key, bit_length)));
+
+        if let Some(te_val) = te {
+            content.push_str(&format!("TE: {}\n", te_val));
+        }
+
+        content.push_str(&format!("Repeat: 3\n"));
+        content.push_str(&format!("Delay: {}\n", delay_ms));
+        content.push_str("\n");
+    }
+
+    content
+}
