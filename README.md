@@ -66,8 +66,9 @@ cargo run --package flipper-agent
 ### 1. Core Device & File Operations (10 tools)
 Device info, file CRUD operations, directory management, app listing
 
-### 2. NFC Operations (3 tools)
-Read, write, clone - MIFARE Classic/Ultralight, NTAG, Bank Cards
+### 2. NFC Operations (7 tools)
+**Basic:** Read, write, clone - MIFARE Classic/Ultralight, NTAG, Bank Cards
+**Advanced:** MIFARE key recovery (mfkey), dictionary attack, emulation, detection
 
 ### 3. RFID Operations (3 tools)
 Read, write, generate - EM4100, H10301 Wiegand, I40134
@@ -199,7 +200,7 @@ See [docs/audit-logging.md](docs/audit-logging.md) for complete guide.
 ## 📚 Documentation
 
 ### User Guides
-- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 104 tools
+- [Tool Usage Guide](docs/tool-usage-guide.md) - Complete reference for all 108 tools
 - [Deployment Guide](docs/deployment.md) - Docker deployment and Strike48 integration
 - [Audit Logging](docs/audit-logging.md) - Compliance and security monitoring
 
@@ -437,7 +438,7 @@ sudo udevadm trigger
 - ✅ Docker deployment (v2.0.0)
 
 **Production Ready:**
-- 101/104 tools tested and validated
+- 101/108 tools tested and validated
 - Full async/await architecture
 - Comprehensive error handling
 - Enterprise-grade observability
