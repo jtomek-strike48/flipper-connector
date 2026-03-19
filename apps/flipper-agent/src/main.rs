@@ -1,70 +1,57 @@
 //! Flipper Zero Connector — Headless Agent
 //!
-//! This binary creates the Flipper Zero connector and demonstrates
-//! its capabilities by running the available tools.
+//! This binary connects the Flipper Zero to Prospector Studio via the Strike48 SDK.
+//! It runs as a long-lived service, handling tool execution requests from the platform.
+//!
+//! Configuration via environment variables:
+//!   - STRIKE48_HOST: Prospector Studio address (default: localhost:50061)
+//!   - TENANT_ID: Tenant identifier (default: default)
+//!   - RUST_LOG: Log level (default: info)
 
 use flipper_core::connector::FlipperConnector;
 use flipper_tools::create_tool_registry;
-use serde_json::json;
-use strike48_connector::BaseConnector;
+use strike48_connector::{BaseConnector, ConnectorConfig, ConnectorRunner};
+use std::sync::Arc;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     flipper_core::logging::init_logging("info");
 
-    tracing::info!("🐬 flipper-agent starting");
-    tracing::info!("Flipper Zero Connector v{}", env!("CARGO_PKG_VERSION"));
+    tracing::info!("🐬 Flipper Zero Connector Agent");
+    tracing::info!("   Version: {}", env!("CARGO_PKG_VERSION"));
     tracing::info!("");
 
     // Create tool registry with all available tools
     let tools = create_tool_registry();
-    tracing::info!("✅ Registered {} tools", tools.tools().len());
+    tracing::info!("✅ Registered {} tools across 20 categories", tools.tools().len());
 
     // Create the connector
     let connector = FlipperConnector::new(tools);
-    tracing::info!("✅ Connector created: {}", connector.connector_type());
+    tracing::info!("✅ Connector type: {}", connector.connector_type());
     tracing::info!("");
 
     // List all capabilities
     let capabilities = connector.capabilities();
-    tracing::info!("📋 Available tools:");
-    for cap in &capabilities {
-        tracing::info!("  • {} - {}", cap.task_type_id, cap.description);
-    }
+    tracing::info!("📋 Available tool categories:");
+    tracing::info!("   • NFC (7 tools) - MIFARE cracking, cloning, emulation");
+    tracing::info!("   • RFID (3 tools) - Low frequency card operations");
+    tracing::info!("   • Sub-GHz (4 tools) - RF protocol capture & bruteforce");
+    tracing::info!("   • BadUSB/BadKB (7 tools) - USB & Bluetooth HID attacks");
+    tracing::info!("   • iButton, IR, GPIO, BLE, U2F, Zigbee, and more...");
     tracing::info!("");
 
-    // Run a simple test: device_info
-    tracing::info!("🧪 Testing flipper_device_info tool...");
-    match run_test_tool(&connector, "flipper_device_info", json!({})).await {
-        Ok(result) => {
-            tracing::info!("✅ Test successful!");
-            tracing::info!("Result: {}", serde_json::to_string_pretty(&result)?);
-        }
-        Err(e) => {
-            tracing::error!("❌ Test failed: {}", e);
-        }
-    }
-
+    tracing::info!("🚀 Connecting to Prospector Studio...");
+    tracing::info!("   STRIKE48_HOST: {}", std::env::var("STRIKE48_HOST").unwrap_or_else(|_| "localhost:50061".to_string()));
+    tracing::info!("   TENANT_ID: {}", std::env::var("TENANT_ID").unwrap_or_else(|_| "default".to_string()));
     tracing::info!("");
-    tracing::info!("✨ flipper-agent demo complete!");
-    tracing::info!("The connector is ready to be integrated with Prospector Studio.");
 
+    // Load configuration from environment
+    let config = ConnectorConfig::from_env();
+
+    // Create runner and run the connector - this will block until shutdown signal
+    let runner = ConnectorRunner::new(config, Arc::new(connector));
+    runner.run().await?;
+
+    tracing::info!("👋 Flipper Zero Connector shutting down");
     Ok(())
-}
-
-/// Helper function to test a tool
-async fn run_test_tool(
-    connector: &FlipperConnector,
-    tool_name: &str,
-    params: serde_json::Value,
-) -> anyhow::Result<serde_json::Value> {
-    let request = json!({
-        "tool": tool_name,
-        "parameters": params
-    });
-
-    connector
-        .execute(request, None)
-        .await
-        .map_err(|e| anyhow::anyhow!("Tool execution failed: {}", e))
 }

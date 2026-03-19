@@ -36,7 +36,7 @@ pub use device_info::DeviceInfoTool;
 pub use file_operations::{FileDeleteTool, FileListTool, FileReadTool, FileWriteTool};
 pub use dir_operations::{DirCreateTool, FileStatTool};
 pub use app_management::{AppListTool, AppInfoTool};
-pub use nfc_operations::{NfcReadTool, NfcWriteTool, NfcMfkeyTool, NfcDictAttackTool, NfcEmulateTool, NfcDetectTool};
+pub use nfc_operations::{NfcReadTool, NfcWriteTool, NfcMfkeyTool, NfcDictAttackTool, NfcEmulateTool, NfcDetectTool, NfcAutoScanCrackTool};
 pub use rfid_operations::{RfidReadTool, RfidWriteTool};
 pub use subghz_operations::{SubGhzReadTool, SubGhzWriteTool, SubGhzBruteforceTool, SubGhzRemoteTool};
 pub use batch_operations::BatchReadTool;
@@ -93,6 +93,7 @@ pub fn create_tool_registry() -> ToolRegistry {
     registry.register(NfcDictAttackTool);
     registry.register(NfcEmulateTool);
     registry.register(NfcDetectTool);
+    registry.register(NfcAutoScanCrackTool);
 
     // RFID operations
     registry.register(RfidReadTool);

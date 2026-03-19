@@ -172,7 +172,7 @@ fn test_full_registry_with_all_tools() {
     // Week 3: nfc_read, nfc_write, rfid_read, rfid_write, subghz_read, subghz_write (6)
     // Week 4: batch_read, file_search, nfc_clone, rfid_generate (4)
     // BadUSB: badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate (5)
-    assert_eq!(registry.tools().len(), 108);
+    assert_eq!(registry.tools().len(), 109);
 
     let names = registry.names();
 
@@ -323,7 +323,7 @@ fn test_full_registry_weeks_1_2_3() {
     // Week 3: nfc_read, nfc_write, rfid_read, rfid_write, subghz_read, subghz_write (6)
     // Week 4: batch_read, file_search, nfc_clone, rfid_generate (4)
     // BadUSB: badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate (5)
-    assert_eq!(registry.tools().len(), 108);
+    assert_eq!(registry.tools().len(), 109);
 
     let names = registry.names();
 
@@ -458,7 +458,7 @@ fn test_full_registry_with_badusb() {
     // Week 3: nfc_read, nfc_write, rfid_read, rfid_write, subghz_read, subghz_write (6)
     // Week 4: batch_read, file_search, nfc_clone, rfid_generate (4)
     // BadUSB: badusb_upload, badusb_list, badusb_read, badusb_delete, badusb_validate (5)
-    assert_eq!(registry.tools().len(), 108);
+    assert_eq!(registry.tools().len(), 109);
 
     let names = registry.names();
 

@@ -5,6 +5,7 @@ members = [
     "crates/flipper-protocol",
     "crates/flipper-tools",
     "apps/flipper-agent",
+    "apps/nfc-test",
 ]
 
 [workspace.package]
