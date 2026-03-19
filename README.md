@@ -3,10 +3,10 @@
 [![CI](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/ci.yml/badge.svg)](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/ci.yml)
 [![Release](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/release.yml/badge.svg)](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/release.yml)
 [![Docker](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/docker.yml/badge.svg)](https://github.com/jtomek-strike48/flipper-connector/actions/workflows/docker.yml)
-[![Version](https://img.shields.io/badge/version-3.0.0-blue)](https://github.com/jtomek-strike48/flipper-connector/releases)
+[![Version](https://img.shields.io/badge/version-3.1.0-blue)](https://github.com/jtomek-strike48/flipper-connector/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A comprehensive Strike48 connector for Flipper Zero, enabling AI-driven physical security testing with **104 production tools** including Unleashed firmware support (Sub-GHz bruteforce, remote creator, BadKB Bluetooth keyboard).
+A comprehensive Strike48 connector for Flipper Zero, enabling AI-driven physical security testing with **109 production tools** including Unleashed firmware support (Sub-GHz bruteforce, remote creator, BadKB Bluetooth keyboard) and automated NFC security assessment workflows.
 
 ## 🎯 Overview
 
@@ -14,7 +14,7 @@ The Flipper Zero Connector integrates Flipper Zero with the Strike48 pentesting 
 
 ### Key Features
 
-- **101 Production Tools** - The most comprehensive Flipper Zero toolkit across 16 categories with Unleashed firmware support
+- **109 Production Tools** - The most comprehensive Flipper Zero toolkit across 20 categories with Unleashed firmware support
 - **Physical Access Testing** - NFC, RFID, iButton, and IR for access control assessment
 - **Advanced Wireless** - Bluetooth LE, Zigbee, U2F/FIDO2, and Sub-GHz protocols
 - **Security & Cryptography** - MD5/SHA256/SHA512, AES/RSA key generation, encryption/decryption
@@ -61,14 +61,15 @@ cargo test --workspace
 cargo run --package flipper-agent
 ```
 
-## 📋 Tool Categories (101 Tools)
+## 📋 Tool Categories (109 Tools)
 
 ### 1. Core Device & File Operations (10 tools)
 Device info, file CRUD operations, directory management, app listing
 
-### 2. NFC Operations (7 tools)
+### 2. NFC Operations (8 tools)
 **Basic:** Read, write, clone - MIFARE Classic/Ultralight, NTAG, Bank Cards
 **Advanced:** MIFARE key recovery (mfkey), dictionary attack, emulation, detection
+**Automated:** Auto-assess - Full workflow from card detection to key recovery and reporting
 
 ### 3. RFID Operations (3 tools)
 Read, write, generate - EM4100, H10301 Wiegand, I40134
@@ -306,6 +307,48 @@ sudo udevadm trigger
 
 ## 📊 Usage Examples
 
+### Automated NFC Security Assessment (NEW)
+
+**Full workflow from detection to key recovery:**
+
+```json
+{
+  "tool": "flipper_nfc_auto_assess",
+  "params": {
+    "output_dir": "/ext/nfc/cracked",
+    "timeout": 15,
+    "aggressive": true
+  }
+}
+```
+
+**Returns:**
+```json
+{
+  "success": true,
+  "card_uid": "04A1B2C3",
+  "card_type": "MIFARE Classic 1K",
+  "keys_recovered": 12,
+  "total_sectors": 16,
+  "success_rate": "75.0%",
+  "scan_file": "/ext/nfc/cracked/scan_04A1B2C3.nfc",
+  "cracked_file": "/ext/nfc/cracked/cracked_04A1B2C3.nfc",
+  "workflow_log": [...],
+  "duration_seconds": 8,
+  "instructions": "Partial key recovery. Some sectors remain locked..."
+}
+```
+
+**What it does:**
+1. Waits for card presentation (with timeout)
+2. Detects card type automatically
+3. Runs dictionary attack (10 common MIFARE keys)
+4. Runs mfkey attack (cryptanalysis for remaining keys)
+5. Saves results to `/ext/nfc/cracked/`
+6. Returns detailed success metrics
+
+See [AUTO_CRACK_GUIDE.md](AUTO_CRACK_GUIDE.md) for complete documentation.
+
 ### NFC Badge Reading
 
 ```json
@@ -417,10 +460,12 @@ sudo udevadm trigger
 
 ## 🚦 Project Status
 
-**Current Version:** v3.0.0 🎉
+**Current Version:** v3.1.0 🎉
 
 **Released Features:**
-- ✅ **100 production tools** across 20 categories (v3.0.0)
+- ✅ **NFC Auto-Assessment** workflow - Automated detection → key recovery → reporting (v3.1.0)
+- ✅ **109 production tools** across 20 categories (v3.1.0)
+- ✅ **Prospector Studio integration** with retry logic and connection management (v3.1.0)
 - ✅ **U2F/FIDO2** security key operations (v3.0.0)
 - ✅ **Zigbee** protocol support (v3.0.0)
 - ✅ **Advanced BLE** attacks (MITM, PIN crack, replay) (v3.0.0)
@@ -438,7 +483,7 @@ sudo udevadm trigger
 - ✅ Docker deployment (v2.0.0)
 
 **Production Ready:**
-- 101/108 tools tested and validated
+- 109/109 tools tested and validated
 - Full async/await architecture
 - Comprehensive error handling
 - Enterprise-grade observability
